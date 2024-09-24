@@ -13,8 +13,8 @@ class WeatherViewModel: ObservableObject {
     @Published var weather: Weather?
     @Published var searchText: String = "Moscow"
     
-    var dataManager: DataManager = .init()
-    var cancellable = [AnyCancellable]()
+    private var dataManager: DataManager = .init()
+    private var cancellable = [AnyCancellable]()
     
     var currentTemperatureString: String {
         guard let temp = weather?.current.temp else { return "--º" }
@@ -57,7 +57,7 @@ class WeatherViewModel: ObservableObject {
         }
     }
     
-    func fetchCoordinates(forCity city: String, complition: @escaping (CLLocationCoordinate2D) -> ()) {
+    private func fetchCoordinates(forCity city: String, complition: @escaping (CLLocationCoordinate2D) -> ()) {
         CLGeocoder().geocodeAddressString(city, completionHandler: { (placemarks, error) in
             if let error = error {
                 print(error.localizedDescription)

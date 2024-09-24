@@ -13,7 +13,7 @@ protocol WeatherFetcher {
 }
 
 class DataManager {
-    let session: URLSession
+    private let session: URLSession
     
     init(session: URLSession = .init(configuration: .default)) {
         self.session = session
@@ -46,7 +46,7 @@ private extension DataManager {
         static var key: String = "9782d9017fa7461dbe2de00741bf2981"
     }
     
-    func createWeatherRequestComponents(lat: Double, lon: Double) -> URLComponents {
+    private func createWeatherRequestComponents(lat: Double, lon: Double) -> URLComponents {
         var components = URLComponents()
         
         components.scheme = OpenWeatherAPI.scheme
