@@ -15,23 +15,27 @@ protocol WeatherFetcher {
 class DataManager {
     private let session: URLSession
     
+    // Здорово, что прокинул сюда URLSession как параметр. Почему так сделал?
+    // И можно просто ```session: URLSession = .default```
     init(session: URLSession = .init(configuration: .default)) {
         self.session = session
     }
 }
 
 extension DataManager: WeatherFetcher {
+    // Удобство Combine для асинхронных запросов сомнительное уже в iOS-разработке
     func fetchWeather(lat: Double, lon: Double) -> AnyPublisher<Weather, Error> {
+        // Если не нужны компоненты, то нужно просто URL отдавать из функции
         guard let url = createWeatherRequestComponents(lat: lat, lon: lon).url else {
             return Fail(error: URLError(.badURL))
                 .eraseToAnyPublisher()
         }
         
         return session.dataTaskPublisher(for: URLRequest(url: url))
-            .map{ $0.data }
+            .map { $0.data }
             .decode(type: OneCallResponse.self, decoder: JSONDecoder())
             .map { response in
-                return Weather.convert(fromResponse: response)
+                Weather.convert(fromResponse: response)
             }
             .eraseToAnyPublisher()
         
@@ -60,8 +64,9 @@ private extension DataManager {
             .init(name: "units", value: "metric")
         ]
         
+        // А зачем нужен print?
         print(components.url?.absoluteString ?? "URL is nil")
-        
+
         return components
     }
 }

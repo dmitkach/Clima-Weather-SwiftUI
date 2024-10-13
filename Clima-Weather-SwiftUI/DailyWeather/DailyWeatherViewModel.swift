@@ -11,9 +11,16 @@ import SwiftUI
 class DailyWeatherViewModel {
     private let dailyWeather: DailyWeather?
     
+    // Почему var? Почему относится к ViewModel? Почему именно UUID?
     var id = UUID()
     
+    // Можно из всех этих свойств сделать промежуточную структурку для отображения во вьюхе
+    // Тогда для nil-данных у нее может быть какое-то дефолтное состояние, сразу с нужными строчками
+
     var day: String {
+        // Форматтеры считаются тяжелыми для создания объектами
+        // Поэтому стараются создавать глобальные форматтеры или хотя бы иметь один на класс
+        // Здесь на каждое обращение будет создаваться
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE"
         if let weather = dailyWeather {
