@@ -12,6 +12,9 @@ struct WeatherContentView: View {
     
     init(viewModel: WeatherViewModel) {
         self.viewModel = viewModel
+
+        // Такое обычно помещают либо в init ViewModel, либо в onAppear метод ViewModel
+        // init может вызываться же не один раз
         viewModel.fetchWeather(forCity: viewModel.searchText)
     }
     
@@ -19,6 +22,7 @@ struct WeatherContentView: View {
         ZStack {
             Color(.systemBackground)
                 .edgesIgnoringSafeArea(.all)
+
             VStack(spacing: 32) {
                 TextField("Enter City Name", text: $viewModel.searchText)
                     .onSubmit {
@@ -30,12 +34,15 @@ struct WeatherContentView: View {
                     .cornerRadius(12)
                     .padding(.all)
                 
-                currentWeatherView
+                if viewModel.weather != nil {
+                    currentWeatherView
+                }
                 
                 Spacer()
+
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack{
-                        if let dailyViews = viewModel.weather?.daily{
+                    VStack {
+                        if let dailyViews = viewModel.weather?.daily {
                             ForEach(dailyViews) { dailyWeather in
                                 DailyWeatherView(viewModel: .init(daySummary: dailyWeather))
                             }
@@ -43,36 +50,34 @@ struct WeatherContentView: View {
                             DailyWeatherView(viewModel: .init(daySummary: nil))
                         }
                     }
-                } .padding(.horizontal)
-                    .padding(.top)
-                
+                } 
+                .padding(.horizontal)
+                .padding(.top)
             }
         }
     }
     
     private var currentWeatherView: some View {
-        if let _ = viewModel.weather {
-            return AnyView(
+        HStack {
+            VStack(spacing: 4) {
+                Text(viewModel.currentTemperatureDescription)
+                    .font(.headline)
+                    .fontWeight(.medium)
+
                 HStack {
-                    VStack(spacing: 4) {
-                        Text(viewModel.currentTemperatureDescription)
-                            .font(.headline)
-                            .fontWeight(.medium)
-                        HStack {
-                            viewModel.currentWeatherIcon
-                                .imageScale(.small)
-                            Text("\(viewModel.currentTemperatureString)")
-                                .fontWeight(.semibold)
-                        }.font(.system(size: 64))
-                            .frame(maxWidth: .infinity)
-                        HStack(spacing: 16) {
-                            Text("Feels like \(viewModel.feelsLikeTemperatureString)")
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                })
-        } else {
-            return AnyView(EmptyView())
+                    viewModel.currentWeatherIcon
+                        .imageScale(.small)
+                    Text("\(viewModel.currentTemperatureString)")
+                        .fontWeight(.semibold)
+                }
+                .font(.system(size: 64))
+                .frame(maxWidth: .infinity)
+
+                HStack(spacing: 16) {
+                    Text("Feels like \(viewModel.feelsLikeTemperatureString)")
+                        .foregroundColor(.secondary)
+                }
+            }
         }
     }
 }

@@ -18,23 +18,41 @@ struct DailyWeatherView: View {
         HStack {
             Text(viewModel.day)
                 .fontWeight(.medium)
+
             Spacer()
+            
             Text("\(viewModel.maxTempFmt) / \(viewModel.minTempFmt)")
                 .fontWeight(.light)
+            
             viewModel.icon
                 .imageScale(.large)
                 .foregroundColor(.secondary)
-        }.padding(.horizontal)
-            .padding(.vertical, 22)
-            .background(Color.init(.secondarySystemBackground))
-            .cornerRadius(10)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 22)
+        .background(Color.init(.secondarySystemBackground))
+        .cornerRadius(10)
     }
 }
 
 #Preview {
-    DailyWeatherView(viewModel: DailyWeatherViewModel(
-        daySummary: .init(dt: Date(timeIntervalSince1970: 1727082000),
-                          sunrise: Date(timeIntervalSince1970: 1727061427),
-                          sunset: Date(timeIntervalSince1970: 1727105194),
-                          temp: Temp(day: 14, min: 8, max: 15, night: 8, eve: 10, morn: 11), weather: [.init(id: 125, main: "Clouds", description: "scattered clouds", weatherIconID: "03d")])))
+    // Выравнивание чаще предпочитают с каждым параметром на новой строчке, включая первый
+    DailyWeatherView(
+        viewModel: DailyWeatherViewModel(
+            daySummary: .init(
+                dt: Date(timeIntervalSince1970: 1727082000),
+                sunrise: Date(timeIntervalSince1970: 1727061427),
+                sunset: Date(timeIntervalSince1970: 1727105194),
+                temp: Temp(
+                    day: 14,
+                    min: 8,
+                    max: 15,
+                    night: 8,
+                    eve: 10,
+                    morn: 11
+                ),
+                weather: [.init(id: 125, main: "Clouds", description: "scattered clouds", weatherIconID: "03d")]
+            )
+        )
+    )
 }

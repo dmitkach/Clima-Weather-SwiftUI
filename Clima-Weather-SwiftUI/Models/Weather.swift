@@ -9,6 +9,10 @@ import Foundation
 import SwiftUI
 
 struct Weather: Codable {
+    // Поля не соединяем на одной строчке
+    // let lat: Double
+    // let lon: Double
+    // и так далее
     let lat, lon: Double
     let timezone: String
     let current: CurrentWeather
@@ -24,6 +28,7 @@ struct Weather: Codable {
                 daily: response.daily.map { .convert(fromResponse: $0) })
     }
     
+    // А зачем тут нужны Coding Keys и Codable в целом?
     enum CodingKeys: String, CodingKey {
         case lat, lon, timezone
         case current, hourly, daily
@@ -96,6 +101,7 @@ struct WeatherElement: Codable {
 
 struct DailyWeather: Codable, Identifiable {
     let id = UUID()
+    // Что такое dt? Лучше не сокращать
     let dt, sunrise, sunset: Date
     let temp: Temp
     let weather: [WeatherElement]
@@ -136,5 +142,6 @@ struct HourlyWeather: Codable {
 
 struct Temp: Codable {
     let day, min, max, night: Double
+    // Я бы не сокращала, читаемость сильно понижает
     let eve, morn: Double
 }

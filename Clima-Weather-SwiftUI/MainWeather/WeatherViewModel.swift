@@ -13,6 +13,8 @@ class WeatherViewModel: ObservableObject {
     @Published var weather: Weather?
     @Published var searchText: String = "Moscow"
     
+    // 1. Вот как в DataManager нужно передавать сам dataManager в конструктор ViewModel. Это все про Dependency Injection
+    // 2. Приватные поля принято располагать после публичных и internal
     private var dataManager: DataManager = .init()
     private var cancellable = [AnyCancellable]()
     
@@ -22,6 +24,8 @@ class WeatherViewModel: ObservableObject {
         return String(format: "%.0fº", temp)
     }
     
+    // Поуезжало выравнивание guard-ов
+    // Вообще все методы считают что-то на самом Weather. Имеет смысл и разместить их в extension Weather
     var currentTemperatureDescription: String {
         guard let description = weather?.current.weather.first?.description else {
         return ""
@@ -38,8 +42,12 @@ class WeatherViewModel: ObservableObject {
         weather?.current.weather.first?.weatherIcon
     }
     
+    // На самом деле смысла передавать город нет, так как он уже есть внутри в searchText
+    // Может остаться просто метод ```func onSubmit()```
     func fetchWeather(forCity city: String) {
+        // А зачем просто [self] захвачен?
         fetchCoordinates(forCity: city) { [self] coordinates in
+            // Что будет, если много раз часто нажать submit?
             dataManager.fetchWeather(lat: coordinates.latitude, lon: coordinates.longitude)
                 .receive(on: DispatchQueue.main)
                 .sink(receiveCompletion: { [weak self] value in
@@ -57,17 +65,23 @@ class WeatherViewModel: ObservableObject {
         }
     }
     
+    // Такие ребята, которые обладают своей логикой и ответственностью тоже имеет смысл выносить в отдельные сервисы, как тот же DataManager
+    // Это Single Responsibility принцип из SOLID, а на практике особенно чувствуется при написании тестов или переиспользовании
+    // completion - опечатка. Можно включить в Xcode проверку правописания слов, будет тогда подчеркивать как текстовый редактор
     private func fetchCoordinates(forCity city: String, complition: @escaping (CLLocationCoordinate2D) -> ()) {
         CLGeocoder().geocodeAddressString(city, completionHandler: { (placemarks, error) in
+            // 1. Лучше сразу вывалиться используя guard
+            // 2. У тебя никак не обрабатывается ошибка. Пользователь жмет кнопку и просто ничего не происходит
             if let error = error {
                 print(error.localizedDescription)
             } else if let placemark = placemarks?.first {
                 let coordinate = placemark.location?.coordinate
-                
-                
+
                 if let coordinate = coordinate {
                     complition(coordinate)
                 } else {
+                    // Константы загадочные. Лучше completion будет уметь возвращать ошибку или опциональные координаты
+                    // А потребитель уже решит, что с этим делать
                     complition(CLLocationCoordinate2D(latitude: 55.755, longitude: 37.6173))
                 }
             }
